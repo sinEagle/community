@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -47,6 +48,37 @@ public class UserController {
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "/site/setting";
+    }
+
+    @RequestMapping(path = "/setting", method = RequestMethod.POST)
+    public String updatePassword(Model model, String password, String newPassword, String confirmPassword) {
+        if (StringUtils.isBlank(password)) {
+            model.addAttribute("passwordMsg", "不能为空 ! 请输入原始密码!");
+            return "/site/setting";
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            model.addAttribute("newPasswordMsg", "不能为空 ！ 请输入新密码 !");
+            return "/site/setting";
+        }
+        if (StringUtils.isBlank(confirmPassword)) {
+            model.addAttribute("confirmPasswordMsg", "不能为空 ！ 请输入确认密码 !");
+            return "/site/setting";
+        }
+        if (!confirmPassword.equals(newPassword)) {
+            model.addAttribute("newPasswordMsg", "两次输入的新密码不相同!");
+            return "/site/setting";
+        }
+        User user = hostHolder.getUser();
+        Map<String, Object> map = userService.updatePassword(password, newPassword, user.getId());
+        if (map == null || map.isEmpty()) {
+            model.addAttribute("msg", "密码修改成功啦");
+            model.addAttribute("target", "/user/setting");
+            return "/site/operate-result";
+        } else {
+            model.addAttribute("passwordMsg", "输入的原始密码错误");
+            return "/site/setting";
+        }
+
     }
 
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
@@ -101,8 +133,7 @@ public class UserController {
         } catch (IOException e) {
             logger.error("读取图像失败: ", e.getMessage());
         }
-
-
     }
+
 
 }
