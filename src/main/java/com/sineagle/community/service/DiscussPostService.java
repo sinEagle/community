@@ -34,9 +34,13 @@ public class DiscussPostService {
         post.setContent(HtmlUtils.htmlEscape(post.getContent()));
         // 过滤敏感词
         post.setTitle(sensitiveFilter.filter(post.getTitle()));
-        post.setTitle(sensitiveFilter.filter(post.getContent()));
+        post.setContent(sensitiveFilter.filter(post.getContent()));
 
         return discussPostMapper.insertDiscussPost(post);
+    }
+
+    public DiscussPost findDiscussPostById(int id) {
+        return discussPostMapper.selectDiscussPostById(id);
     }
 }
 
